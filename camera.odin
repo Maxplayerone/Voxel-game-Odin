@@ -10,7 +10,7 @@ Camera :: struct{
     speed: f32,
 }
 
-update_camera :: proc(window :glfw.WindowHandle, camera: Camera, delta_time: f64) -> Camera{
+update_camera :: proc(window: glfw.WindowHandle, camera: Camera, delta_time: f64) -> Camera{
     camera := camera
 
     speed := camera.speed * cast(f32)delta_time

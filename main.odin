@@ -37,6 +37,8 @@ main :: proc() {
     window := InitWindow(960, 720, "voxel") 
     defer WindowCleanup(window)
 
+	gl.Enable(gl.CULL_FACE)  
+
     program, program_ok := gl.load_shaders_source(vertex_source, fragment_source)
 	if !program_ok {
 		fmt.eprintln("Failed to create GLSL program")
@@ -56,25 +58,8 @@ main :: proc() {
 	vbo, ebo: u32
 	gl.GenBuffers(1, &vbo); defer gl.DeleteBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo); defer gl.DeleteBuffers(1, &ebo)
-	
-	// struct declaration
-	Vertex :: struct {
-		pos: glm.vec3,
-		col: glm.vec4,
-	}
-	
-	vertices := []Vertex{
-		{{0.0, 1.0, 0.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{0.0, 0.0, 0}, {1.0, 1.0, 0.0, 0.75}},
-		{{1.0, 0.0, 0}, {0.0, 1.0, 0.0, 0.75}},
-		{{1.0, 1.0, 0}, {0.0, 0.0, 1.0, 0.75}},
-	}
-	
-	indices := []u16{
-		0, 1, 2,
-		2, 3, 0,
-	}
-	
+
+	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}) 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(0)
@@ -86,12 +71,17 @@ main :: proc() {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*size_of(indices[0]), raw_data(indices), gl.STATIC_DRAW)
 
 
+	/*
 	camera := Camera{
 		pos = glm.vec3{0.0, 0.0, -3.0},
 		front = glm.vec3{0.0, 0.0, -1.0},
 		up = glm.vec3{0.0, 1.0, 0.0},
 		speed = 2.5,
 	}
+	*/
+	camera_pos := glm.vec3{0.0, 0.0, 3.0}
+    camera_front := glm.vec3{0.0, 0.0, -1.0}
+	camera_up := glm.vec3{0.0, 1.0, 0.0}
 
 	delta_time := 0.0
 	last_frame := 0.0
@@ -100,10 +90,29 @@ main :: proc() {
 		glfw.PollEvents()
 
 		if update_dir(){
-			camera.front = direction
+			camera_front = direction
 		}
 
-		camera = update_camera(window, camera, delta_time)
+		camera_speed: f32 = 2.5 * cast(f32)delta_time
+
+		if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS{
+			camera_pos += camera_speed * camera_front
+		}
+		if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS{
+			camera_pos -= camera_speed * camera_front
+		}
+		if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS{
+			camera_pos -= glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
+		}
+		if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS{
+			camera_pos += glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
+		}
+		if glfw.GetKey(window, glfw.KEY_SPACE) == glfw.PRESS{
+			camera_pos += camera_up * camera_speed
+		}
+		if glfw.GetKey(window, glfw.KEY_LEFT_CONTROL) == glfw.PRESS{
+			camera_pos -= camera_up * camera_speed
+		}
 
         model := glm.mat4{
             1.0, 0.0, 0.0, 0.0,
@@ -111,7 +120,9 @@ main :: proc() {
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0,
         }
-		view := get_view(camera)
+		view := glm.mat4LookAt(camera_pos, 
+					camera_front + camera_pos,
+					camera_up)
 
         proj := glm.mat4Perspective(glm.radians_f32(45.0), 960.0/720.0, 0.1, 100.0)
         u_transform := proj * view * model
