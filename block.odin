@@ -6,8 +6,8 @@ Vertex :: struct {
 	col: glm.vec4,
 }
 	
-generate_block_mesh :: proc(pos: glm.vec3) -> ([]Vertex, []u16){
-	vertices := []Vertex{
+generate_block_mesh :: proc(pos: glm.vec3) -> ([dynamic]Vertex, [dynamic]u16){
+	vertices_slice := []Vertex{
 		//front face
 		{{0.0, 1.0, 1.0}, {1.0, 0.0, 0.0, 0.75}},
 		{{0.0, 0.0, 1.0}, {1.0, 1.0, 0.0, 0.75}},
@@ -39,8 +39,8 @@ generate_block_mesh :: proc(pos: glm.vec3) -> ([]Vertex, []u16){
 		{{1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.75}},
 		{{1.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 0.75}},
 	}
-	
-	indices := []u16{
+    
+	indices_slice := []u16{
 		0, 1, 2,
 		2, 3, 0,
 
@@ -59,5 +59,11 @@ generate_block_mesh :: proc(pos: glm.vec3) -> ([]Vertex, []u16){
 		20, 21, 22,
 		22, 23, 20,
 	}
+    vertices : [dynamic]Vertex
+    append(&vertices, ..vertices_slice[:])
+
+    indices: [dynamic]u16
+    append(&indices, ..indices_slice[:])
+
     return vertices, indices
 }

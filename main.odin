@@ -60,6 +60,7 @@ main :: proc() {
 	gl.GenBuffers(1, &ebo); defer gl.DeleteBuffers(1, &ebo)
 
 	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}) 
+
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)
 	gl.EnableVertexAttribArray(0)
