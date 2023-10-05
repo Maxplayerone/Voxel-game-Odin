@@ -86,16 +86,12 @@ main :: proc() {
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*size_of(indices[0]), raw_data(indices), gl.STATIC_DRAW)
 
 
-    //camera stuff
-    camera_pos := glm.vec3{0.0, 0.0, 3.0}
-    camera_front := glm.vec3{0.0, 0.0, -1.0}
-	camera_up := glm.vec3{0.0, 1.0, 0.0}
-
-	yaw: f32 = -90.0
-	pitch: f32
-	lastx := 400
-	lasty := 300
-
+	camera := Camera{
+		pos = glm.vec3{0.0, 0.0, -3.0},
+		front = glm.vec3{0.0, 0.0, -1.0},
+		up = glm.vec3{0.0, 1.0, 0.0},
+		speed = 2.5,
+	}
 
 	delta_time := 0.0
 	last_frame := 0.0
@@ -104,23 +100,10 @@ main :: proc() {
 		glfw.PollEvents()
 
 		if update_dir(){
-			camera_front = direction
+			camera.front = direction
 		}
 
-		camera_speed: f32 = 2.5 * cast(f32)delta_time
-
-		if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS{
-			camera_pos += camera_speed * camera_front
-		}
-		if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS{
-			camera_pos -= camera_speed * camera_front
-		}
-		if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS{
-			camera_pos -= glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
-		}
-		if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS{
-			camera_pos += glm.normalize(glm.cross(camera_front, camera_up)) * camera_speed
-		}
+		camera = update_camera(window, camera, delta_time)
 
         model := glm.mat4{
             1.0, 0.0, 0.0, 0.0,
@@ -128,11 +111,7 @@ main :: proc() {
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0,
         }
-        //model = model * glm.mat4Rotate({0.5, 1.0, 0.0}, cast(f32)glfw.GetTime() * glm.radians_f32(50.0))
-
-    	view := glm.mat4LookAt(camera_pos, 
-					camera_front + camera_pos,
-					camera_up)
+		view := get_view(camera)
 
         proj := glm.mat4Perspective(glm.radians_f32(45.0), 960.0/720.0, 0.1, 100.0)
         u_transform := proj * view * model

@@ -58,20 +58,20 @@ pitch: f32 = 0.0
 direction: glm.vec3
 changed_mouse := false
 first_mouse := true 
-lastx := 480
-lasty := 360
+lastx := 480.0
+lasty := 360.0
 
 mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64){
 	if first_mouse{
-		lastx = cast(int)xpos
-		lasty = cast(int)ypos
+		lastx = xpos
+		lasty = ypos
 		first_mouse = false
 	} 
 
-	xoffset := xpos - cast(f64)lastx
-	yoffset := cast(f64)lasty - ypos
-	lastx = cast(int)xpos
-	lasty = cast(int)ypos
+	xoffset := xpos - lastx
+	yoffset := lasty - ypos
+	lastx = xpos
+	lasty = ypos
 
 	sens := 0.1
 	xoffset *= sens
