@@ -1,6 +1,8 @@
 package main
-/*
-import glm "vendor:openGL"
+
+import "core:fmt"
+
+import gl "vendor:openGL"
 
 vertex_source := `#version 330 core
 layout(location=0) in vec3 aPos;
@@ -26,35 +28,36 @@ void main(){
 }
 `
 
-chunk :: struct{
+Chunk :: struct{
     vbo: u32,
     ebo: u32,
     vao: u32,
     program: u32,
-    indices: []u16,
-    vertices: 
+    vertices: [dynamic]Vertex,
+	indices: [dynamic]u16,
+	uniforms: map[string]gl.Uniform_Info,
 }
 
-build_chunk :: proc() -> chunk{
+build_chunk :: proc() -> Chunk{
     program, program_ok := gl.load_shaders_source(vertex_source, fragment_source)
 	if !program_ok {
 		fmt.eprintln("Failed to create GLSL program")
-		return
+		return Chunk{}
 	}
-	defer gl.DeleteProgram(program)
+	//defer gl.DeleteProgram(program)
 	
 	gl.UseProgram(program)
 	
 	uniforms := gl.get_uniforms_from_program(program)
-	defer delete(uniforms)
+	//defer delete(uniforms)
 	
 	vao: u32
-	gl.GenVertexArrays(1, &vao); defer gl.DeleteVertexArrays(1, &vao)
+	gl.GenVertexArrays(1, &vao) //defer gl.DeleteVertexArrays(1, &vao)
 	
 	// initialization of OpenGL buffers
 	vbo, ebo: u32
-	gl.GenBuffers(1, &vbo); defer gl.DeleteBuffers(1, &vbo)
-	gl.GenBuffers(1, &ebo); defer gl.DeleteBuffers(1, &ebo)
+	gl.GenBuffers(1, &vbo) //defer gl.DeleteBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo) //defer gl.DeleteBuffers(1, &ebo)
 
 	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}) 
 
@@ -68,15 +71,13 @@ build_chunk :: proc() -> chunk{
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*size_of(indices[0]), raw_data(indices), gl.STATIC_DRAW)
 
-    return {
+    return Chunk{
         vao = vao,
         vbo = vbo,
         ebo = ebo,
         program = program,
+		vertices = vertices,
+		indices = indices,
+		uniforms = uniforms,
     }
 }
-
-render_chunk :: proc(chunk: Chunk){
-    gl.DrawElements(gl.TRIANGLES, i32(len(chunk.indices)), gl.UNSIGNED_SHORT, nil)
-}
-*/
