@@ -8,8 +8,8 @@ Vertex :: struct {
 
 block_size :: 1.0
 	
-generate_block_mesh :: proc(pos: glm.vec3, color: glm.vec3) -> ([dynamic]Vertex, [dynamic]u16){
-	vertices_slice := []Vertex{
+generate_block_mesh :: proc(pos: glm.vec3, color: glm.vec3, block_num: u16) -> ([24]Vertex, [36]u16){
+	vertices := [24]Vertex{
 		//front face
 		{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
 		{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
@@ -42,30 +42,26 @@ generate_block_mesh :: proc(pos: glm.vec3, color: glm.vec3) -> ([dynamic]Vertex,
 		{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
 	}
     
-	indices_slice := []u16{
-		0, 1, 2,
-		2, 3, 0,
+	i := 24 * block_num
+	indices := [36]u16{
+		i, i + 1, i + 2,
+		i + 2, i + 3, i,
 
-		4, 5, 6,
-		6, 7, 4,
+		i + 4, i + 5, i + 6,
+		i + 6, i + 7, i + 4,
 
-		8, 9, 10,
-		10, 11, 8,
+		i + 8, i + 9, i + 10,
+		i + 10, i + 11, i + 8,
 
-		12, 13, 14,
-		14, 15, 12,
+		i + 12, i + 13, i + 14,
+		i + 14, i + 15, i + 12,
 
-		16, 17, 18,
-		18, 19, 16,
+		i + 16, i + 17, i + 18,
+		i + 18, i + 19, i + 16,
 
-		20, 21, 22,
-		22, 23, 20,
+		i + 20, i + 21, i + 22,
+		i + 22, i + 23, i + 20,
 	}
-    vertices : [dynamic]Vertex
-    append(&vertices, ..vertices_slice[:])
-
-    indices: [dynamic]u16
-    append(&indices, ..indices_slice[:])
 
     return vertices, indices
 }

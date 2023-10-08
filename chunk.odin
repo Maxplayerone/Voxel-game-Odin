@@ -3,6 +3,7 @@ package main
 import "core:fmt"
 
 import gl "vendor:openGL"
+import glm "core:math/linalg/glsl"
 
 vertex_source := `#version 330 core
 layout(location=0) in vec3 aPos;
@@ -38,6 +39,9 @@ Chunk :: struct{
 	uniforms: map[string]gl.Uniform_Info,
 }
 
+CHUNK_WIDTH :: 16
+CHUNK_DEPTH :: 16
+
 build_chunk :: proc() -> Chunk{
     program, program_ok := gl.load_shaders_source(vertex_source, fragment_source)
 	if !program_ok {
@@ -59,7 +63,20 @@ build_chunk :: proc() -> Chunk{
 	gl.GenBuffers(1, &vbo) //defer gl.DeleteBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo) //defer gl.DeleteBuffers(1, &ebo)
 
-	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}) 
+	vertices := make([dynamic]Vertex)
+	indices := make([dynamic]u16)
+	color_light := glm.vec3{0.37, 1.0, 0.39}
+	color_dark := glm.vec3{0.13, 0.81, 0.15}
+	i: u16 = 0
+	for z in 0..<CHUNK_DEPTH{
+		for x in 0..<CHUNK_WIDTH{
+			color := i %% 2 == 0 ? color_light : color_dark
+			temp_vertices, temp_indices := generate_block_mesh({f32(x), 0.0, f32(z)}, color, i) 
+			append(&vertices, ..temp_vertices[:])
+			append(&indices, ..temp_indices[:])
+			i += 1
+		}
+	}
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)

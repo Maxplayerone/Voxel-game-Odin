@@ -13,11 +13,8 @@ main :: proc() {
     defer WindowCleanup(window)
 
 	gl.Enable(gl.CULL_FACE)  
+	//current_color := {0.37, 1, 0.39} //0.13, 0.81, 0.15
 	chunk := build_chunk()
-	for vertex in chunk.vertices{
-		fmt.println(vertex)
-	}
-
 	/*
 	camera := Camera{
 		pos = glm.vec3{0.0, 0.0, -3.0},
@@ -26,8 +23,8 @@ main :: proc() {
 		speed = 2.5,
 	}
 	*/
-	camera_pos := glm.vec3{0.0, 0.0, 3.0}
-    camera_front := glm.vec3{0.0, 0.0, -1.0}
+	camera_pos := glm.vec3{-7.0, 7.0, 5.0}
+    camera_front := glm.vec3{1.0, 0.0, 0.0}
 	camera_up := glm.vec3{0.0, 1.0, 0.0}
 
 	delta_time := 0.0
@@ -61,12 +58,20 @@ main :: proc() {
 			camera_pos -= camera_up * camera_speed
 		}
 
-        model := glm.mat4{
+		if glfw.GetKey(window, glfw.KEY_1) == glfw.PRESS{
+			gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
+		}
+		if glfw.GetKey(window, glfw.KEY_2) == glfw.PRESS{
+			gl.PolygonMode(gl.FRONT_AND_BACK, gl.FILL)
+		}
+		
+		model := glm.mat4{
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0,
         }
+
 		view := glm.mat4LookAt(camera_pos, 
 					camera_front + camera_pos,
 					camera_up)
