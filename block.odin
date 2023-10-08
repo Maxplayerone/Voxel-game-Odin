@@ -5,39 +5,41 @@ Vertex :: struct {
 	pos: glm.vec3,
 	col: glm.vec4,
 }
+
+block_size :: 1.0
 	
-generate_block_mesh :: proc(pos: glm.vec3) -> ([dynamic]Vertex, [dynamic]u16){
+generate_block_mesh :: proc(pos: glm.vec3, color: glm.vec3) -> ([dynamic]Vertex, [dynamic]u16){
 	vertices_slice := []Vertex{
 		//front face
-		{{0.0, 1.0, 1.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{0.0, 0.0, 1.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{1.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 0.75}},
-		{{1.0, 1.0, 1.0}, {0.0, 0.0, 1.0, 0.75}},
+		{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
 		//back face
-		{{1.0, 1.0, 0.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{1.0, 0.0, 0.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.75}},
-		{{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0, 0.75}},
+		{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
 		//right face
-		{{1.0, 1.0, 1.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{1.0, 0.0, 1.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.75}},
-		{{1.0, 1.0, 0.0}, {0.0, 0.0, 1.0, 0.75}},
+		{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
 		//left face
-		{{0.0, 1.0, 0.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{0.0, 0.0, 0.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{0.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 0.75}},
-		{{0.0, 1.0, 1.0}, {0.0, 0.0, 1.0, 0.75}},
+		{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
 		//top face
-		{{0.0, 1.0, 0.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{0.0, 1.0, 1.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{1.0, 1.0, 1.0}, {0.0, 1.0, 0.0, 0.75}},
-		{{1.0, 1.0, 0.0}, {0.0, 0.0, 1.0, 0.75}},
+		{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
 		//bottom face
-		{{0.0, 0.0, 1.0}, {1.0, 1.0, 0.0, 0.75}},
-		{{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0, 0.75}},
-		{{1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.75}},
-		{{1.0, 0.0, 1.0}, {0.0, 1.0, 0.0, 0.75}},
+		{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+		{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
 	}
     
 	indices_slice := []u16{

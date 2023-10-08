@@ -59,7 +59,7 @@ build_chunk :: proc() -> Chunk{
 	gl.GenBuffers(1, &vbo) //defer gl.DeleteBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo) //defer gl.DeleteBuffers(1, &ebo)
 
-	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}) 
+	vertices, indices := generate_block_mesh({0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}) 
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)
