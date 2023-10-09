@@ -36,11 +36,17 @@ Chunk :: struct{
     program: u32,
     vertices: [dynamic]Vertex,
 	indices: [dynamic]u16,
+	chunk_data: [dynamic]u8, //storing data if the block is in the coordinate
 	uniforms: map[string]gl.Uniform_Info,
 }
 
 CHUNK_WIDTH :: 16
 CHUNK_DEPTH :: 16
+CHUNK_HEIGHT :: 1
+
+to_1d_array :: proc(x: int, y: int, z: int) -> int{
+	return x + (z * CHUNK_WIDTH)
+}
 
 build_chunk :: proc() -> Chunk{
     program, program_ok := gl.load_shaders_source(vertex_source, fragment_source)
@@ -63,20 +69,72 @@ build_chunk :: proc() -> Chunk{
 	gl.GenBuffers(1, &vbo) //defer gl.DeleteBuffers(1, &vbo)
 	gl.GenBuffers(1, &ebo) //defer gl.DeleteBuffers(1, &ebo)
 
+	//generating chunk data
+	chunk_data: [dynamic]u8
+	for y in 0..<CHUNK_HEIGHT{
+		for z in 0..<CHUNK_DEPTH{
+			for x in 0..<CHUNK_WIDTH{
+				assign_at(&chunk_data, to_1d_array(x, y, z), 1)
+			}
+		}
+	}
+
 	vertices := make([dynamic]Vertex)
 	indices := make([dynamic]u16)
 	color_light := glm.vec3{0.37, 1.0, 0.39}
 	color_dark := glm.vec3{0.13, 0.81, 0.15}
 	i: u16 = 0
+	j: u8 = 0
 	for z in 0..<CHUNK_DEPTH{
 		for x in 0..<CHUNK_WIDTH{
-			color := i %% 2 == 0 ? color_light : color_dark
-			temp_vertices, temp_indices := generate_block_mesh({f32(x), 0.0, f32(z)}, color, i) 
-			append(&vertices, ..temp_vertices[:])
-			append(&indices, ..temp_indices[:])
-			i += 1
+			color := j %% 2 == 0 ? color_light : color_dark
+			j += 1
+			//front face
+			if z == CHUNK_DEPTH - 1 || chunk_data[to_1d_array(x, 1, z + 1)] != 1{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Front, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
+			//back face
+			if z == 0 || chunk_data[to_1d_array(x, 1, z - 1)] != 1{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Back, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
+			//right face
+			fmt.println(x)
+			if x == CHUNK_WIDTH - 1 || chunk_data[to_1d_array(x + 1, 1, z)] != 1{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Right, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
+			//left face
+			if x == 0 || chunk_data[to_1d_array(x - 1, 1, z)] != 1{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Left, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
+			//top face
+			if true{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Top, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
+			//bottom face
+			if true{
+				temp_vertices, temp_indices := generate_face_mesh({f32(x), 0.0, f32(z)}, color, .Bottom, i) 
+				append(&vertices, ..temp_vertices[:])
+				append(&indices, ..temp_indices[:])
+				i += 1
+			}
 		}
 	}
+	fmt.println("faces drawn ", i)
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)

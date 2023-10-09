@@ -7,6 +7,69 @@ Vertex :: struct {
 }
 
 block_size :: 1.0
+
+FaceType :: enum{
+	Front,
+	Back,
+	Left,
+	Right,
+	Top,
+	Bottom,
+}
+
+generate_face_mesh :: proc(pos: glm.vec3, color: glm.vec3, face_type: FaceType, block_num: u16) -> ([4]Vertex, [6]u16){
+	vertices: [4]Vertex
+	indices: [6]u16
+	switch face_type{
+		case .Front:
+			vertices = {
+				{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+			}
+		case .Back:
+			vertices = {
+				{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+			}
+		case .Right:
+			vertices = {
+				{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+			}
+		case .Left:
+			vertices = {
+				{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+			}
+		case .Top:
+			vertices = {
+				{{pos.x, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y + block_size, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y + block_size, pos.z}, {color.x, color.y, color.z, 1.0}},
+			}
+		case .Bottom:
+			vertices = {
+				{{pos.x, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z}, {color.x, color.y, color.z, 1.0}},
+				{{pos.x + block_size, pos.y, pos.z + block_size}, {color.x, color.y, color.z, 1.0}},
+			}
+	}
+	i := 4 * block_num
+	indices = {
+		i, i + 1, i + 2, i + 2, i + 3, i
+	}
+	return vertices, indices
+}
 	
 generate_block_mesh :: proc(pos: glm.vec3, color: glm.vec3, block_num: u16) -> ([24]Vertex, [36]u16){
 	vertices := [24]Vertex{
