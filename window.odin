@@ -85,11 +85,11 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64){
 	if pitch < -89.0{
 		pitch = -89.0
 	}
-
 	direction.x = math.cos(glm.radians_f32(yaw)) * math.cos(glm.radians_f32(pitch))
 	direction.y = math.sin(glm.radians_f32(pitch))
 	direction.z = math.sin(glm.radians_f32(yaw)) * math.cos(glm.radians_f32(pitch))
 	direction = glm.normalize(direction)
+
 	changed_mouse = true
 }
 

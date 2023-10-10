@@ -63,6 +63,7 @@ build_chunk :: proc() -> Chunk{
 	
 	vao: u32
 	gl.GenVertexArrays(1, &vao) //defer gl.DeleteVertexArrays(1, &vao)
+	gl.BindVertexArray(vao)
 	
 	// initialization of OpenGL buffers
 	vbo, ebo: u32

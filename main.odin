@@ -15,6 +15,8 @@ main :: proc() {
 	gl.Enable(gl.CULL_FACE)  
 	//current_color := {0.37, 1, 0.39} //0.13, 0.81, 0.15
 	chunk := build_chunk()
+	light := build_light_object({0.0, 2.0, 5.0})
+
 	/*
 	camera := Camera{
 		pos = glm.vec3{0.0, 0.0, -3.0},
@@ -23,8 +25,8 @@ main :: proc() {
 		speed = 2.5,
 	}
 	*/
-	camera_pos := glm.vec3{-7.0, 7.0, 5.0}
-    camera_front := glm.vec3{1.0, 0.0, 0.0}
+	camera_pos := glm.vec3{7.0, 5.5, 27.0}
+    camera_front := glm.vec3{0.0, 0.0, 0.0}
 	camera_up := glm.vec3{0.0, 1.0, 0.0}
 
 	delta_time := 0.0
@@ -32,6 +34,7 @@ main :: proc() {
 
 	for (!glfw.WindowShouldClose(window) && IsRunning()) {
 		glfw.PollEvents()
+		fmt.println(camera_pos, camera_front)
 
 		if update_dir(){
 			camera_front = direction
@@ -78,12 +81,19 @@ main :: proc() {
 
         proj := glm.mat4Perspective(glm.radians_f32(45.0), 960.0/720.0, 0.1, 100.0)
         u_transform := proj * view * model
-        gl.UniformMatrix4fv(chunk.uniforms["mvp"].location, 1, false, &u_transform[0, 0])
 
 	    gl.ClearColor(0.2, 0.3, 0.3, 1.0)
         gl.Clear(gl.COLOR_BUFFER_BIT)
 
+		gl.UseProgram(chunk.program)
+        	gl.UniformMatrix4fv(chunk.uniforms["mvp"].location, 1, false, &u_transform[0, 0])
+		gl.BindVertexArray(chunk.vao)
     	gl.DrawElements(gl.TRIANGLES, i32(len(chunk.indices)), gl.UNSIGNED_SHORT, nil)
+
+		gl.UseProgram(light.program)
+        	gl.UniformMatrix4fv(light.uniforms["mvp"].location, 1, false, &u_transform[0, 0])
+		gl.BindVertexArray(light.vao)
+    	gl.DrawElements(gl.TRIANGLES, i32(len(light.indices)), gl.UNSIGNED_SHORT, nil)
 
 		glfw.SwapBuffers((window))
 
